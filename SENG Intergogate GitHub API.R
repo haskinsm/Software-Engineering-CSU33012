@@ -22,7 +22,7 @@ github_token <- oauth2.0_token(oauth_endpoints("github"), GitHubSENGMeasApp)
 # Use API
 gtoken <- config(token = github_token)
 APIResponse <- GET(paste("https://api.github.com/users/", gitHubUsername,"/repos", sep = ""), gtoken)
-## The paste function above functions like 
+## The paste function above concats the strings
 
 # Take action on http error
 stop_for_status(APIResponse)
