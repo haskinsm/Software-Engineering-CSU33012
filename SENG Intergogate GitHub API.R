@@ -56,7 +56,7 @@ while(pagination){
   ## Not yet sure if will have to put the above in toString(<.....>) func
   
   if( !is.null(APIResponse$headers$link) ){ ## APIResponse$headers$link Will be null if no further pages to get
-      address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1]
+      address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
   } else{
     pagination = FALSE;
   }
