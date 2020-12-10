@@ -1,5 +1,3 @@
-## Reference: The first 30 or so lines were modified from the src:
-## https://towardsdatascience.com/accessing-data-from-github-api-using-r-3633fb62cb08
 
 ##Below are packages necessary for program, installs only need to be run once:
 #install.packages("jsonlite")
@@ -8,6 +6,8 @@ library(jsonlite)
 library(httpuv)
 #install.packages("httr")
 library(httr)
+#install.packages("plotly")
+library(plotly)
 
 
 gitHubUsername = "phadej" ##Makes it easy to change the username of base GitHub user we want to interrogate
@@ -55,10 +55,11 @@ while( i <  lastPageNumber ){
   ## Can not send the above as a get request to GitHub V3 API
   ## Not yet sure if will have to put the above in toString(<.....>) func
   
+  ## On first pass will set the last page number if there is more than one page of repos and address for 2nd page
   if( i == 1 && !is.null(APIResponse$headers$link) ){
     lastPageNumber = strtoi( strsplit( (strsplit(APIResponse$headers$link, "=")[[1]][4]) , ">")[[1]][1]  ) ## Returns last page number and changes to int
     address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
-  } else if (!is.null(APIResponse$headers$link)){
+  } else if (!is.null(APIResponse$headers$link)){ ## Set the page number for remaining pages
     address = paste( strsplit(address, "=")[[1]][1], "=", (i + 1) , sep = "") ## Will increment address to next page
   }
   
@@ -71,14 +72,19 @@ usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 usersRepoDataFrame$name[[100]]## Outputs name of 100th repo
 usersRepoDataFrame$name ## Outputs all names of users repos
 
-##usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc, 
+usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc, 
 ## but from research I beleive it approximates the size of a repo in Kb
 ## This could be used as a crude approx of prpject size/complexity
 
-#plotRepoData = 
+usersRepoDataFrame$watchers_count ## Count of watchers
 
+usersRepoDataFrame$
 
+colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for each repo
 
+# ?plot_ly
+plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size vs Repo Watcher Count")
+plotRepoData1
 
 userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep=""))
 userAccData ## This will display all the info/data that is returned from the get request
