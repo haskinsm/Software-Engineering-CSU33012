@@ -30,7 +30,7 @@ JSONData = content(APIResponse)
 gitDataFrame = jsonlite::fromJSON(jsonlite::toJSON(JSONData))
 
 # Subset data.frame
-gitDataFrame[gitDF$full_name == "phadej/datasharing", "created_at"] 
+gitDataFrame[gitDataFrame$full_name == "phadej/datasharing", "created_at"] 
 
 data = fromJSON("https://api.github.com/users/phadej")
 data ## This will display all the info/data that is returned from the get request
