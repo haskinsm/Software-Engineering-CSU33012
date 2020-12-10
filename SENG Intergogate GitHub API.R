@@ -87,10 +87,10 @@ usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 
 # ?plot_ly
 ## plot_ly is specifically used to plot data coming from data frame in R
-plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size vs Repo Watcher Count")
+plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo Watcher Count")
 plotRepoData1
 
-plotRepoData2 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~size) %>% layout(title="Repo Size vs Repo creation Date")
+plotRepoData2 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo creation Date")
 plotRepoData2
 
 plotRepoData3 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo creation Date")
@@ -99,7 +99,7 @@ plotRepoData3
 plotRepoData4 = plot_ly(data = usersRepoDataFrame, x = ~forks_count, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo Forks Count")
 plotRepoData4
 
-plotRepoData5 = plot_ly(data = usersRepoDataFrame, x = ~open_issues, y = ~size) %>% layout(title="Repo Size vs Repo open issues")
+plotRepoData5 = plot_ly(data = usersRepoDataFrame, x = ~open_issues, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo open issues")
 plotRepoData5
 
 plotRepoData6 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~open_issues) %>% layout(title="Repo open issues vs Repo creation date")
@@ -117,3 +117,4 @@ userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep
 ## Will print basic summary info of account
 print( paste(userAccData$name, "whose GitHub username is", userAccData$login, "created his/her account on", userAccData$created_at,
               ".", userAccData$name, "has", userAccData$public_repos, "public repos and", userAccData$followers, "followers.") )
+## i.e.: "Oleg Grenrus whose GitHub username is phadej created his/her account on 2009-02-02T11:18:45Z . Oleg Grenrus has 537 public repos and 422 followers."
