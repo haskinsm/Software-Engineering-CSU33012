@@ -33,10 +33,10 @@ while(pagination){
   i = i + 1 ## List has to start at index 1 in R
   APIResponse <- GET( address, gtoken)
   
-  # Take action on http error
+  ## Take action on http error
   stop_for_status(APIResponse)
   
-  APIResponse$headers$link
+  # APIResponse$headers$link
   ## This will yield the following output for example:
   ## [1] "<https://api.github.com/user/51087/repos?page=2>; rel=\"next\", <https://api.github.com/user/51087/repos?page=18>; rel=\"last\""
   ## Need to break the above down to get out the first link with the help of strsplit function
@@ -55,13 +55,14 @@ while(pagination){
   ## Can not send the above as a get request to GitHub V3 API
   ## Not yet sure if will have to put the above in toString(<.....>) func
   
-  if( !is.null(APIResponse$headers$link) ){ ## APIResponse$headers$link Will be null if no further pages to get
+  if( !is.null(APIResponse$headers$link) || APIResponse == "" ){ ## APIResponse$headers$link Will be null if no further pages to get
       address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
   } else{
-    pagination = FALSE;
+    pagination = FALSE
   }
   # Pages will be stored in below list as seperate data frames and later binded outside of this while loop using rbind_pages()
   JSONDataPagesDataFrame[[i]] = jsonlite::fromJSON(jsonlite::toJSON( (content(APIResponse)) ))
+  APIResponse = "" ## Ressetting as trying to fix bug where data repeats
 }
 
 usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
@@ -71,7 +72,12 @@ usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 usersRepoDataFrame$name ## Outputs name of repos
 ##usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc, 
 ## but from research I beleive it approximates the size of a repo in Kb
-## This could be used as a crude approx of SLOC
+## This could be used as a crude approx of prpject size/complexity
+
+#plotRepoData = 
+
+
+
 
 userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep=""))
 userAccData ## This will display all the info/data that is returned from the get request
