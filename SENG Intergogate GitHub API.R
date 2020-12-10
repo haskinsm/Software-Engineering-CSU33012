@@ -23,13 +23,13 @@ github_token <- oauth2.0_token(oauth_endpoints("github"), GitHubSENGMeasApp)
 gtoken <- config(token = github_token)
 
 ## Below Code aims to deal with pagnation aspect of GitHub API
-pagination = TRUE 
+lastPageNumber = 1 ## This will be changed should there be more pages
 JSONDataPagesDataFrame = list()
 i = 0 ## Will be used to index the list
 address = paste("https://api.github.com/users/", gitHubUsername,"/repos", sep = "") 
 ## The paste function above concats the strings
 
-while(pagination){
+while( i <  lastPageNumber + 1){ ## I < 20 is a temp condition for debugging purposes, will be removed later
   i = i + 1 ## List has to start at index 1 in R
   APIResponse <- GET( address, gtoken)
   
@@ -55,21 +55,22 @@ while(pagination){
   ## Can not send the above as a get request to GitHub V3 API
   ## Not yet sure if will have to put the above in toString(<.....>) func
   
-  if( !is.null(APIResponse$headers$link) || APIResponse == "" ){ ## APIResponse$headers$link Will be null if no further pages to get
-      address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
-  } else{
-    pagination = FALSE
+  if( i == 1 && !is.null(APIResponse$headers$link) ){
+    lastPageNumber = strtoi( strsplit( (strsplit(APIResponse$headers$link, "=")[[1]][4]) , ">")[[1]][1]  ) ## Returns last page number and changes to int
+    address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
+  } else if (!is.null(APIResponse$headers$link)){
+    address = paste( strsplit(address, "=")[[1]][1], "=", i , sep = "") ## Will increment address to next page
   }
+  
   # Pages will be stored in below list as seperate data frames and later binded outside of this while loop using rbind_pages()
   JSONDataPagesDataFrame[[i]] = jsonlite::fromJSON(jsonlite::toJSON( (content(APIResponse)) ))
-  APIResponse = "" ## Ressetting as trying to fix bug where data repeats
 }
 
 usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 
-# Convert to a data.frame
-##usersRepoDataFrame = jsonlite::fromJSON(jsonlite::toJSON(JSONData))
-usersRepoDataFrame$name ## Outputs name of repos
+usersRepoDataFrame$name[[100]]## Outputs name of 100th repo
+usersRepoDataFrame$name ## Outputs all names of users repos
+
 ##usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc, 
 ## but from research I beleive it approximates the size of a repo in Kb
 ## This could be used as a crude approx of prpject size/complexity
@@ -86,8 +87,3 @@ userAccData ## This will display all the info/data that is returned from the get
 userAccData$public_repos
 userAccData$followers
 
-userRepos = fromJSON(paste("https://api.github.com/users/",gitHubUsername, "/repos?per_page=100;", sep=""))
-userRepos$size
-
-repoNames = c(userRepos$name)
-repoNames
