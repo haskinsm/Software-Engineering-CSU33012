@@ -99,6 +99,14 @@ plotRepoData3
 plotRepoData4 = plot_ly(data = usersRepoDataFrame, x = ~forks_count, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo Forks Count")
 plotRepoData4
 
+plotRepoData5 = plot_ly(data = usersRepoDataFrame, x = ~open_issues, y = ~size) %>% layout(title="Repo Size vs Repo open issues")
+plotRepoData5
+
+plotRepoData6 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~open_issues) %>% layout(title="Repo open issues vs Repo creation date")
+plotRepoData6
+
+
+
 userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep=""))
 userAccData ## This will display all the info/data that is returned from the get request
 
