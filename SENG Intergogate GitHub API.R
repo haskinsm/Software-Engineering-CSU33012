@@ -78,13 +78,26 @@ usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc,
 
 usersRepoDataFrame$watchers_count ## Count of watchers
 
-usersRepoDataFrame$
+usersRepoDataFrame$created_at
+
+## usersRepoDataFrame$owner$login ##  Yields useful unfort, all repos owners login details are phadej
+## So will assume he created all the projects
 
 colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for each repo
 
 # ?plot_ly
+## plot_ly is specifically used to plot data coming from data frame in R
 plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size vs Repo Watcher Count")
 plotRepoData1
+
+plotRepoData2 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~size) %>% layout(title="Repo Size vs Repo creation Date")
+plotRepoData2
+
+plotRepoData3 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo creation Date")
+plotRepoData3
+
+plotRepoData4 = plot_ly(data = usersRepoDataFrame, x = ~forks_count, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo Forks Count")
+plotRepoData4
 
 userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep=""))
 userAccData ## This will display all the info/data that is returned from the get request
