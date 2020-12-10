@@ -21,26 +21,67 @@ github_token <- oauth2.0_token(oauth_endpoints("github"), GitHubSENGMeasApp)
 
 # Use API
 gtoken <- config(token = github_token)
-APIResponse <- GET(paste("https://api.github.com/users/", gitHubUsername,"/repos", sep = ""), gtoken)
+
+## Below Code aims to deal with pagnation aspect of GitHub API
+pagination = TRUE 
+JSONDataPagesDataFrame = list()
+i = 0 ## Will be used to index the list
+address = paste("https://api.github.com/users/", gitHubUsername,"/repos", sep = "") 
 ## The paste function above concats the strings
 
-# Take action on http error
-stop_for_status(APIResponse)
+while(pagination){
+  i = i + 1 ## List has to start at index 1 in R
+  APIResponse <- GET( address, gtoken)
+  
+  # Take action on http error
+  stop_for_status(APIResponse)
+  
+  APIResponse$headers$link
+  ## This will yield the following output for example:
+  ## [1] "<https://api.github.com/user/51087/repos?page=2>; rel=\"next\", <https://api.github.com/user/51087/repos?page=18>; rel=\"last\""
+  ## Need to break the above down to get out the first link with the help of strsplit function
+  
+  ## #strsplit(APIResponse$headers$link, "<") will result in e.g. : 
+  ## [[1]]
+  ## [1] ""                                                               
+  ## [2] "https://api.github.com/user/51087/repos?page=2>; rel=\"next\", "
+  ## [3] "https://api.github.com/user/51087/repos?page=18>; rel=\"last\"" 
+  
+  ## strsplit(APIResponse$headers$link, "<")[[1]][2] will result in e.g. :
+  ## [1] "https://api.github.com/user/51087/repos?page=2>; rel=\"next\", "
+  
+  ## strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] will result in e.g.:
+  ## [1] "https://api.github.com/user/51087/repos?page=2"
+  ## Can not send the above as a get request to GitHub V3 API
+  ## Not yet sure if will have to put the above in toString(<.....>) func
+  
+  if( !is.null(APIResponse$headers$link) ){ ## APIResponse$headers$link Will be null if no further pages to get
+      address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1]
+  } else{
+    pagination = FALSE;
+  }
+  # Pages will be stored in below list as seperate data frames and later binded outside of this while loop using rbind_pages()
+  JSONDataPagesDataFrame[[i]] = jsonlite::fromJSON(jsonlite::toJSON( (content(APIResponse)) ))
+}
 
-# Extract content from a request
-JSONData = content(APIResponse)
+usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 
 # Convert to a data.frame
-gitDataFrame = jsonlite::fromJSON(jsonlite::toJSON(JSONData))
+##usersRepoDataFrame = jsonlite::fromJSON(jsonlite::toJSON(JSONData))
+usersRepoDataFrame$name ## Outputs name of repos
+##usersRepoDataFrame$size ## The size var lacks documentation in GitHub API Doc, 
+## but from research I beleive it approximates the size of a repo in Kb
+## This could be used as a crude approx of SLOC
 
-# Subset data.frame
-gitDataFrame[gitDataFrame$full_name == paste(gitHubUsername,"/datasharing"), "created_at"] 
-
-data = fromJSON(paste("https://api.github.com/users/",gitHubUsername))
-data ## This will display all the info/data that is returned from the get request
+userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep=""))
+userAccData ## This will display all the info/data that is returned from the get request
 
 ## Data can be easily accessed as is done below: 
-data$public_repos
-data$followers
+userAccData$public_repos
+userAccData$followers
 
+userRepos = fromJSON(paste("https://api.github.com/users/",gitHubUsername, "/repos?per_page=100;", sep=""))
+userRepos$size
 
+repoNames = c(userRepos$name)
+repoNames
