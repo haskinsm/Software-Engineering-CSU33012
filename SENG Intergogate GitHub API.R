@@ -29,7 +29,7 @@ i = 0 ## Will be used to index the list
 address = paste("https://api.github.com/users/", gitHubUsername,"/repos", sep = "") 
 ## The paste function above concats the strings
 
-while( i <  lastPageNumber + 1){ ## I < 20 is a temp condition for debugging purposes, will be removed later
+while( i <  lastPageNumber ){ 
   i = i + 1 ## List has to start at index 1 in R
   APIResponse <- GET( address, gtoken)
   
@@ -59,7 +59,7 @@ while( i <  lastPageNumber + 1){ ## I < 20 is a temp condition for debugging pur
     lastPageNumber = strtoi( strsplit( (strsplit(APIResponse$headers$link, "=")[[1]][4]) , ">")[[1]][1]  ) ## Returns last page number and changes to int
     address = strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Find explanation for this func above
   } else if (!is.null(APIResponse$headers$link)){
-    address = paste( strsplit(address, "=")[[1]][1], "=", i , sep = "") ## Will increment address to next page
+    address = paste( strsplit(address, "=")[[1]][1], "=", (i + 1) , sep = "") ## Will increment address to next page
   }
   
   # Pages will be stored in below list as seperate data frames and later binded outside of this while loop using rbind_pages()
