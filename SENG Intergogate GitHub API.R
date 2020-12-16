@@ -6,8 +6,6 @@ library(jsonlite)
 library(httpuv)
 #install.packages("httr")
 library(httr)
-#install.packages("plotly")
-library(plotly)
 
 
 gitHubUsername = "phadej" ##Makes it easy to change the username of base GitHub user we want to interrogate
@@ -85,6 +83,16 @@ usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 
 #colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for each repo
 
+
+
+
+## Now will Visualize the data. 
+
+#install.packages("plotly")     
+## Note it is very important that library(plotly) is called after no longer need to use the httr library 
+##  As they have conflicting name types (E.g. config). If library(plotly) is called before the httr requests 
+## the project will fail to execute.
+library(plotly)
 # ?plot_ly
 ## plot_ly is specifically used to plot data coming from data frame in R
 plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo Watcher Count")
