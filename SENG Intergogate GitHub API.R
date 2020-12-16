@@ -53,7 +53,7 @@ while( i <  lastPageNumber ){
   ## strsplit( strsplit( (strsplit(APIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] will result in e.g.:
   ## [1] "https://api.github.com/user/51087/repos?page=2"
   ## Can not send the above as a get request to GitHub V3 API
-  ## Not yet sure if will have to put the above in toString(<.....>) func
+  ## Not yet sure if will have to put the above in toString(<.....>) func.
   
   ## On first pass will set the last page number if there is more than one page of repos and address for 2nd page
   if( i == 1 && !is.null(APIResponse$headers$link) ){
