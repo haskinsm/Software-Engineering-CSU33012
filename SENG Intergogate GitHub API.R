@@ -81,7 +81,7 @@ usersRepoDataFrame = rbind_pages( JSONDataPagesDataFrame )
 ## usersRepoDataFrame$owner$login ##  Yields useful unfort, all repos owners login details are phadej
 ## So will assume he created all the projects
 
-#colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for each repo
+colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for each repo
 
 
 
@@ -126,3 +126,25 @@ userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep
 print( paste(userAccData$name, "whose GitHub username is", userAccData$login, "created his/her account on", userAccData$created_at,
               ".", userAccData$name, "has", userAccData$public_repos, "public repos and", userAccData$followers, "followers.") )
 ## i.e.: "Oleg Grenrus whose GitHub username is phadej created his/her account on 2009-02-02T11:18:45Z . Oleg Grenrus has 537 public repos and 422 followers."
+
+
+
+colnames(usersRepoDataFrame) 
+dim(usersRepoDataFrame)[1]
+usersRepoDataFrame$name[[1]][1]
+requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[1]][1],"/commits", sep = "")
+GHAPIResponse <- GET( requesturl, gtoken)
+stop_for_status(GHAPIResponse)
+
+CommitDataFrame = list()
+CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
+colnames(CommitDataFrame)
+CommitDataFrame$commit$author$name
+CommitDataFrame$commit$author$date
+
+
+
+
+
+
+
