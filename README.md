@@ -9,3 +9,4 @@ Please find an example of one of the graphs generated, using the plot_ly library
 
 I also created a dashboard which should be accessible through the following link https://plotly.com/~haskinsm/6/software-engineering-measurement-dashboard/ 
 This dashboard was created using Plotly API. It contains 3 plots which measure the SE prdocutivity of the entered user, phadej. The plots analyse how productive the user is at different times of the day and how more productive they have become over the years (I used commit count of the user to measure his productivity and made sure I only counted commits by the user and did not include collaboraters). 
+The plots will update automatically if for example one changes the username to another GitHub user (and runs the code) other than phadej or runs the code after phadej has made new commits to some repos.
