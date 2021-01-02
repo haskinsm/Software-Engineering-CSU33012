@@ -126,7 +126,7 @@ userAccData = fromJSON(paste("https://api.github.com/users/",gitHubUsername, sep
 print( paste(userAccData$name, "whose GitHub username is", userAccData$login, "created his/her account on", userAccData$created_at,
               ".", userAccData$name, "has", userAccData$public_repos, "public repos and", userAccData$followers, "followers.") )
 ## i.e.: "Oleg Grenrus whose GitHub username is phadej created his/her account on 2009-02-02T11:18:45Z . Oleg Grenrus has 537 public repos and 422 followers."
-
+GHUsersFullName = userAccData$name
 
 
 colnames(usersRepoDataFrame) 
@@ -139,12 +139,52 @@ stop_for_status(GHAPIResponse)
 CommitDataFrame = list()
 CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
 colnames(CommitDataFrame)
+dim(CommitDataFrame)
 CommitDataFrame$commit$author$name
 CommitDataFrame$commit$author$date
 
 
+allCommitsDataFrame = list()
+allCommitsDataFrame = data.frame(
+  commitDate = integer(),
+  commitTime = integer(),
+  commitTimeMin = integer(),
+  commitTimeHr = integer()
+)
+
+requesturl = ""
+for( i in 1:dim(usersRepoDataFrame)[1]){ ## Will iterate 538 times (the num of repos user phadej has)
+  
+  requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[i]][1],"/commits", sep = "")
+  GHAPIResponse <- GET( requesturl, gtoken)
+  stop_for_status(GHAPIResponse)
+  
+  CommitDataFrame = list()
+  CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
+  i= i + 1
+  for( j in 1:dim(CommitDataFrame)[1]){
+    if( CommitDataFrame$commit$author$name[[j]] == GHUsersFullName){ ## Only account for the commit if its by Oleg Genru the owner of account Phadej
+      ## Example of commit date&time: "2017-03-05T21:30:30Z"
+       date = strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][1]
+       time = strsplit(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], "Z" )[[1]][1]
+       timeNearestMin = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
+       timeNearestHr = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 2)
+       ## or to give to nearest min: substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
+       allCommitsDataFrame[nrow(allCommitsDataFrame)+1, ] = c( date, time, timeNearestMin, timeNearestHr)
+    }
+    j = j + 1
+  }
+}
+dim(allCommitsDataFrame)
+##allCommitsDataFrame$commitDate = as.Date(allCommitsDataFrame$commitDate, format = "%Y/%m/%d")
+##allCommitsDataFrame[order(allCommitsDataFrame$commitDate), ]
+
+plotCommitsDate = plot_ly(x = as.Date(allCommitsDataFrame$commitDate, format = "%Y-%m-%d"), type = 'histogram') %>% layout(title="Count of Commit history by user")
+plotCommitsDate
+
+plotCommitsTime = plot_ly(data = allCommitsDataFrame, x = ~commitTime ) %>% layout(title="Commits Time")
+plotCommitsTime
 
 
 
-
-
+        
