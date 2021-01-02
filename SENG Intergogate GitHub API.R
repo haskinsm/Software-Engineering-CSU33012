@@ -94,24 +94,39 @@ colnames(usersRepoDataFrame) ## Lists the colnames present in the data frame for
 ## the project will fail to execute.
 library(plotly)
 # ?plot_ly
-## plot_ly is specifically used to plot data coming from data frame in R
-plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo Watcher Count")
+## plot_ly is commonly used to plot data coming from data frame in R. 
+
+## Immediatly below are my credentials for Plotly API, I will be creating a dashboard of all the generated plots.
+## The dashboard will change automatically if any of the plots in it are changed. i.e if I run the same plot again with different 
+## data the new plot will replace the old one automatically. 
+# **********Decided against including the following 6 graphs in the dashboard
+
+#Sys.setenv("plotly_username" = "haskinsm")
+#Sys.setenv("plotly_api_key" = "UfGcCx74or1XPr1ZDhzo") 
+
+plotRepoData1 = plot_ly(data = usersRepoDataFrame, x = ~watchers_count, y = ~size, type = "scatter", mode="markers") %>% layout(title="Repo Size (in Kb) vs Repo Watcher Count")
 plotRepoData1
+#api_create(plotRepoData1, filename = "Repo Size (in Kb) vs Repo Watcher Count")
 
 plotRepoData2 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo creation Date")
 plotRepoData2
+#api_create(plotRepoData2, filename = "Repo Size (in Kb) vs Repo creation Date")
 
 plotRepoData3 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo creation Date")
 plotRepoData3
+#api_create(plotRepoData3, filename = "Repo Watchers Count vs Repo creation Date")
 
 plotRepoData4 = plot_ly(data = usersRepoDataFrame, x = ~forks_count, y = ~watchers_count) %>% layout(title="Repo Watchers Count vs Repo Forks Count")
 plotRepoData4
+#api_create(plotRepoData4, filename = "Repo Watchers Count vs Repo Forks Count")
 
 plotRepoData5 = plot_ly(data = usersRepoDataFrame, x = ~open_issues, y = ~size) %>% layout(title="Repo Size (in Kb) vs Repo open issues")
 plotRepoData5
+#api_create(plotRepoData5, filename = "Repo Size (in Kb) vs Repo open issues")
 
 plotRepoData6 = plot_ly(data = usersRepoDataFrame, x = ~created_at, y = ~open_issues) %>% layout(title="Repo open issues vs Repo creation date")
 plotRepoData6
+#api_create(plotRepoData6, filename = "Repo open issues vs Repo creation date")
 
 
 
@@ -179,12 +194,22 @@ dim(allCommitsDataFrame)
 ##allCommitsDataFrame$commitDate = as.Date(allCommitsDataFrame$commitDate, format = "%Y/%m/%d")
 ##allCommitsDataFrame[order(allCommitsDataFrame$commitDate), ]
 
-plotCommitsDate = plot_ly(x = as.Date(allCommitsDataFrame$commitDate, format = "%Y-%m-%d"), type = 'histogram') %>% layout(title="Count of Commit history by user")
+plotCommitsDate = plot_ly(x = as.Date(allCommitsDataFrame$commitDate, format = "%Y-%m-%d"), type = 'histogram') %>% layout(title="Count of Commit history by user", yaxis = list(title = "Count"))
 plotCommitsDate
+api_create(plotCommitsDate, filename = "Commit History of user")
 
-plotCommitsTime = plot_ly(data = allCommitsDataFrame, x = ~commitTime ) %>% layout(title="Commits Time")
-plotCommitsTime
+plotCommitsTimeMin = plot_ly(data = allCommitsDataFrame, x = ~commitTimeMin, type = 'histogram' ) %>% layout(title="Productivity", yaxis = list(title = "Count"))
+plotCommitsTimeMin
+api_create(plotCommitsTimeMin, filename = "Productivity")
+
+plotCommitsTimeHr = plot_ly(data = allCommitsDataFrame, x = ~commitTimeHr, type = 'histogram' ) %>% layout(title="Count of commits at different hours of the day", yaxis = list(title = "Count"))
+plotCommitsTimeHr
+api_create(plotCommitsTimeHr, filename = "Count of commits at different hours of the day")
 
 
+#install.packages("dash")
+#library(dash)
+#library(dashCoreComponents)
+#library(dashHtmlComponents)
 
-        
+
