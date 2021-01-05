@@ -144,19 +144,19 @@ print( paste(userAccData$name, "whose GitHub username is", userAccData$login, "c
 GHUsersFullName = userAccData$name
 
 
-colnames(usersRepoDataFrame) 
-dim(usersRepoDataFrame)[1]
-usersRepoDataFrame$name[[1]][1]
-requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[1]][1],"/commits", sep = "")
-GHAPIResponse <- GET( requesturl, gtoken)
-stop_for_status(GHAPIResponse)
+#colnames(usersRepoDataFrame) 
+#dim(usersRepoDataFrame)[1]
+#usersRepoDataFrame$name[[1]][1]
+#requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[1]][1],"/commits", sep = "")
+#GHAPIResponse <- GET( requesturl, gtoken)
+#stop_for_status(GHAPIResponse)
 
-CommitDataFrame = list()
-CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
-colnames(CommitDataFrame)
-dim(CommitDataFrame)
-CommitDataFrame$commit$author$name
-CommitDataFrame$commit$author$date
+#CommitDataFrame = list()
+#CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
+#colnames(CommitDataFrame)
+#dim(CommitDataFrame)
+#CommitDataFrame$commit$author$name
+#CommitDataFrame$commit$author$date
 
 
 allCommitsDataFrame = list()
@@ -171,23 +171,36 @@ requesturl = ""
 for( i in 1:dim(usersRepoDataFrame)[1]){ ## Will iterate 538 times (the num of repos user phadej has)
   
   requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[i]][1],"/commits", sep = "")
-  GHAPIResponse <- GET( requesturl, gtoken)
-  stop_for_status(GHAPIResponse)
+  lastPageNumber = 1
+  maxPageNumber = 8 ##So will get a max of 30 x 8 =240 commits for each repo, as takes too long to run otherwise
+  z = 0
+  i = i + 1
+  while ( z < lastPageNumber && z < maxPageNumber){
+    z = z + 1
+    GHAPIResponse <- GET( requesturl, gtoken)
+    stop_for_status(GHAPIResponse)
+    
+    CommitDataFrame = list()
+    CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
   
-  CommitDataFrame = list()
-  CommitDataFrame = jsonlite::fromJSON(jsonlite::toJSON( (content(GHAPIResponse)) ) )
-  i= i + 1
-  for( j in 1:dim(CommitDataFrame)[1]){
-    if( CommitDataFrame$commit$author$name[[j]] == GHUsersFullName){ ## Only account for the commit if its by Oleg Genru the owner of account Phadej
-      ## Example of commit date&time: "2017-03-05T21:30:30Z"
-       date = strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][1]
-       time = strsplit(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], "Z" )[[1]][1]
-       timeNearestMin = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
-       timeNearestHr = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 2)
-       ## or to give to nearest min: substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
-       allCommitsDataFrame[nrow(allCommitsDataFrame)+1, ] = c( date, time, timeNearestMin, timeNearestHr)
+    for( j in 1:dim(CommitDataFrame)[1]){
+      if( CommitDataFrame$commit$author$name[[j]] == GHUsersFullName){ ## Only account for the commit if its by Oleg Genru the owner of account Phadej
+        ## Example of commit date&time: "2017-03-05T21:30:30Z"
+         date = strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][1]
+         time = strsplit(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], "Z" )[[1]][1]
+         timeNearestMin = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
+         timeNearestHr = substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 2)
+         ## or to give to nearest min: substr(strsplit(CommitDataFrame$commit$author$date[[j]], "T")[[1]][2], start = 1, stop = 5)
+         allCommitsDataFrame[nrow(allCommitsDataFrame)+1, ] = c( date, time, timeNearestMin, timeNearestHr)
+      }
+      j = j + 1
     }
-    j = j + 1
+    if( z == 1 && !is.null(GHAPIResponse$headers$link) ){
+      lastPageNumber = strtoi( strsplit( (strsplit(GHAPIResponse$headers$link, "=")[[1]][4]) , ">")[[1]][1]  ) ## Returns last page number and changes to int
+      requesturl = strsplit( strsplit( (strsplit(GHAPIResponse$headers$link, "<")[[1]][2]) , ">")[[1]][1] , " ")[[1]][1] ## Explanation For all the pagination dealing stuff is better explained where i get repos
+    } else if (!is.null(GHAPIResponse$headers$link)){ ## Set the page number for remaining pages
+      requesturl = paste( strsplit(requesturl, "=")[[1]][1], "=", (z + 1) , sep = "") ## Will increment address to next page
+    }
   }
 }
 dim(allCommitsDataFrame)
