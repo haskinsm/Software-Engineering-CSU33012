@@ -172,10 +172,10 @@ for( i in 1:dim(usersRepoDataFrame)[1]){ ## Will iterate 538 times (the num of r
   
   requesturl = paste("https://api.github.com/repos/", gitHubUsername, "/", usersRepoDataFrame$name[[i]][1],"/commits", sep = "")
   lastPageNumber = 1
-  maxPageNumber = 8 ##So will get a max of 30 x 8 =240 commits for each repo, as takes too long to run otherwise
+ # maxPageNumber = 8 ##So will get a max of 30 x 8 =240 commits for each repo, as takes too long to run otherwise
   z = 0
   i = i + 1
-  while ( z < lastPageNumber && z < maxPageNumber){
+  while ( z < lastPageNumber ){ #&& z < maxPageNumber){
     z = z + 1
     GHAPIResponse <- GET( requesturl, gtoken)
     stop_for_status(GHAPIResponse)
