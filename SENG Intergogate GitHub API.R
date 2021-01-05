@@ -207,6 +207,9 @@ dim(allCommitsDataFrame)
 ##allCommitsDataFrame$commitDate = as.Date(allCommitsDataFrame$commitDate, format = "%Y/%m/%d")
 ##allCommitsDataFrame[order(allCommitsDataFrame$commitDate), ]
 
+Sys.setenv("plotly_username" = "haskinsm")
+Sys.setenv("plotly_api_key" = "UfGcCx74or1XPr1ZDhzo") 
+
 plotCommitsDate = plot_ly(x = as.Date(allCommitsDataFrame$commitDate, format = "%Y-%m-%d"), type = 'histogram') %>% layout(title="Count of Commit history by user", yaxis = list(title = "Count"))
 plotCommitsDate
 api_create(plotCommitsDate, filename = "Commit History of user")
